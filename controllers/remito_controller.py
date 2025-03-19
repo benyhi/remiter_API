@@ -150,49 +150,49 @@ class RemitoController:
         except Exception as e:
             return {"error": "Error inesperado", "details": str(e)}, 500
 
-    @staticmethod #Optional
-    def import_data(file_path):
-        try:
-            import_excel = ImportExcel(file_path)
-            data = import_excel.read_excel()
-            remitos = []
+    # @staticmethod #Optional
+    # def import_data(file_path):
+    #     try:
+    #         import_excel = ImportExcel(file_path)
+    #         data = import_excel.read_excel()
+    #         remitos = []
             
-            for row in data:
-                row = {key.lower().replace(" ", "_"): value for key, value in row.items()}
+    #         for row in data:
+    #             row = {key.lower().replace(" ", "_"): value for key, value in row.items()}
 
-                cliente = row.get('cliente')
-                cliente_id = Cliente.query.filter(
-                    (Cliente.nombre == cliente) | (Cliente.cuil == cliente)
-                ).first()
+    #             cliente = row.get('cliente')
+    #             cliente_id = Cliente.query.filter(
+    #                 (Cliente.nombre == cliente) | (Cliente.cuil == cliente)
+    #             ).first()
 
-                if cliente is None:
-                    return {"error": f"Cliente {cliente} no encontrado"}, 404
+    #             if cliente is None:
+    #                 return {"error": f"Cliente {cliente} no encontrado"}, 404
 
-                try:
-                    remito = Remito(
-                        numero=row.get('numero'),
-                        cliente_id=cliente_id.id,
-                        fecha=row.get('fecha'),
-                        productos=row.get('productos'),
-                        total=row.get('total')
-                    )
-                    remitos.append(remito)
+    #             try:
+    #                 remito = Remito(
+    #                     numero=row.get('numero'),
+    #                     cliente_id=cliente_id.id,
+    #                     fecha=row.get('fecha'),
+    #                     productos=row.get('productos'),
+    #                     total=row.get('total')
+    #                 )
+    #                 remitos.append(remito)
 
-                except SQLAlchemyError as e:
-                    db.session.rollback()
-                    print (f"Error al importar el cliente {row}")
-                    continue
+    #             except SQLAlchemyError as e:
+    #                 db.session.rollback()
+    #                 print (f"Error al importar el cliente {row}")
+    #                 continue
 
-            if remitos:
-                db.session.add_all(remitos)
-                db.session.commit()
-                remito_schema = RemitoSchema(many=True)
-                return {"message": "Remitos importados con éxito", "remitos_importados": remito_schema.dump(remitos)}, 200
-            else:
-                return {"error": "No se pudo importar ningun remito"}, 400
+    #         if remitos:
+    #             db.session.add_all(remitos)
+    #             db.session.commit()
+    #             remito_schema = RemitoSchema(many=True)
+    #             return {"message": "Remitos importados con éxito", "remitos_importados": remito_schema.dump(remitos)}, 200
+    #         else:
+    #             return {"error": "No se pudo importar ningun remito"}, 400
 
-        except Exception as e:
-            return {"error": "No se pudo importar los datos", "details": str(e)}, 500
+    #     except Exception as e:
+    #         return {"error": "No se pudo importar los datos", "details": str(e)}, 500
 
     @staticmethod
     def generate_pdf(data):

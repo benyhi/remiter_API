@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify
 from controllers import RemitoController as Remito
 
 remitos_bp = Blueprint('remitos_bp', __name__)
@@ -38,7 +38,7 @@ def generate_pdf():
     response = Remito.generate_pdf(data)
     return response
 
-@remitos_bp.route('/remitos/pdf/print', method=['POST'])
+@remitos_bp.route('/remitos/pdf/print', methods=['POST'])
 def print_pdf():
     data = request.get_json()
     response = Remito.print_pdf(data)
