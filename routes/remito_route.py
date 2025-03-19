@@ -37,3 +37,9 @@ def generate_pdf():
     data = request.get_json()
     response = Remito.generate_pdf(data)
     return response
+
+@remitos_bp.route('/remitos/pdf/print', method=['POST'])
+def print_pdf():
+    data = request.get_json()
+    response = Remito.print_pdf(data)
+    return response

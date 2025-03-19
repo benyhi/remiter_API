@@ -222,3 +222,20 @@ class RemitoController:
                 return {"error": "Error inesperado"}, 400
         else:
             return {"error": "No hay datos"}, 400
+
+    @staticmethod
+    def print_pdf(data):
+        if data:
+            try: 
+                pdf = PDF.generate(data)
+                response = make_response(pdf)
+                response.headers['Content-Type'] = 'application/pdf'
+                response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
+                return response, 200
+            
+            except Exception as e:
+                print(f"❌ Error al generar PDF: {e}")
+                return {"error": "Error inesperado"}, 400
+        else:
+            return {"error": "No hay datos"}, 400
+            
