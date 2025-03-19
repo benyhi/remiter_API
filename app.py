@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 from flask_migrate import Migrate
 from models.database import db, ma
@@ -16,6 +16,10 @@ migrate = Migrate(app, db)
 @app.route('/')
 def home():
     return "SERVIDOR CORRIENDO"
+
+@app.route('/invoice')
+def invoice():
+    return render_template('remito.html')
 
 from routes import register_blueprint
 register_blueprint(app)
