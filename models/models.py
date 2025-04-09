@@ -11,16 +11,6 @@ class Remito(db.Model):
 
     cliente = db.relationship('Cliente', backref=db.backref('remitos', cascade="all, delete"))
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'numero': self.numero,
-            'cliente_id': self.cliente_id,
-            'fecha': self.fecha,
-            'productos': self.productos,
-            'total': self.total
-        }
-
     @classmethod
     def get_remito_number(cls):
         last_remito = db.session.query(cls).order_by(cls.numero.desc()).first()
@@ -32,11 +22,3 @@ class Cliente(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     cuit = db.Column(db.String(20), nullable=False, unique=True)
     telefono = db.Column(db.String(20), nullable=True)
-
-    def to_dict(self):
-        return{
-            "id": self.id,
-            "nombre": self.nombre,
-            "cuit": self.cuit,
-            "telefono": self.telefono
-        }

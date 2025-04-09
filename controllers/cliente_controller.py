@@ -12,6 +12,10 @@ class ClienteController:
             clientes = Cliente.query.all()
             cliente_schema = ClienteSchema(many=True)
             return cliente_schema.dump(clientes)
+        
+        except Exception as e:
+            print(f"⚠️ Error inesperado: {e}")
+            return {"error": "Error inesperado", "details": str(e)}, 500
 
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -27,6 +31,10 @@ class ClienteController:
 
             cliente_schema = ClienteSchema()
             return cliente_schema.dump(cliente)
+
+        except Exception as e:
+            print(f"⚠️ Error inesperado: {e}")
+            return {"error": "Error inesperado", "details": str(e)}, 500
 
         except SQLAlchemyError as e:
             db.session.rollback()

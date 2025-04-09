@@ -12,11 +12,11 @@ class ClienteSchema(ma.SQLAlchemySchema):
     telefono = ma.auto_field()
 
     @validates('cuit')
-    def validate_cuil(self, value):
+    def validate_cuit(self, value):
         if not value.isdigit() or len(value) != 11:
             raise ValidationError('El CUIL debe contener solo números y tener 11 caracteres')
 
-class RemitosSchema(ma.SQLAlchemySchema):
+class RemitoSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Remito
 

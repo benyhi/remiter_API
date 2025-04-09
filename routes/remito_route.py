@@ -21,10 +21,10 @@ def get_remito(id):
     remito = Remito.get_one(id)
     return jsonify(remito)
 
-@remitos_bp.route('/remitos', methods=['PUT'])
-def put_remito():
+@remitos_bp.route('/remitos/<int:id>', methods=['PUT'])
+def put_remito(id):
     data = request.get_json()
-    remito = Remito.update(data)
+    remito = Remito.update(id, data)
     return jsonify(remito)
 
 @remitos_bp.route('/remitos/<int:id>', methods=['DELETE'])
@@ -32,14 +32,16 @@ def delete_remito(id):
     remito = Remito.delete(id)
     return jsonify(remito)
 
+#receives data of remito, and response with pdf.
 @remitos_bp.route('/remitos/pdf', methods=['POST'])
 def generate_pdf():
     data = request.get_json()
+    print(data)
     response = Remito.generate_pdf(data)
     return response
 
-@remitos_bp.route('/remitos/pdf/print', methods=['POST'])
-def print_pdf():
-    data = request.get_json()
-    response = Remito.print_pdf(data)
+#receive id of remito and print this.
+@remitos_bp.route('/remitos/pdf/<int:id>/print', methods=['POST'])
+def print_pdf(id):
+    response = Remito.print_pdf(id)
     return response
