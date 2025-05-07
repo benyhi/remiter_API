@@ -1,10 +1,11 @@
-from flask import jsonify, render_template, make_response
+from flask import jsonify, render_template, make_response, send_file
 from models.models import Remito, Cliente
 from models.schemas import RemitoSchema
 from models.database import db
 from sqlalchemy.exc import SQLAlchemyError
 from services.pdf_service import PDF
 from datetime import date, datetime
+import io
 
 
 class RemitoController:
@@ -280,10 +281,16 @@ class RemitoController:
                 remito_dict["total"] = float(remito_dict.get("total", 0))
 
                 pdf = PDF.generate(remito_dict)
-                response = make_response(pdf)
-                response.headers['Content-Type'] = 'application/pdf'
-                response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
-                return response, 200
+                if not pdf:
+                    print("⚠️ PDF.generate devolvió None")
+                    return {"error": "No se pudo generar el PDF"}, 400
+                
+                return send_file(
+                    io.BytesIO(pdf),
+                    mimetype='application/pdf',
+                    download_name=f"remito_{id}.pdf",
+                    as_attachment=False
+                )
 
             except Exception as e:
                 print(f"❌ Error al generar PDF: {e}")
