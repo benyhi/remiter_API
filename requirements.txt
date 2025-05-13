@@ -2,6 +2,7 @@ alembic==1.15.1
 arabic-reshaper==3.0.0
 asn1crypto==1.5.1
 blinker==1.9.0
+Brotli==1.1.0
 certifi==2025.1.31
 cffi==1.17.1
 chardet==5.2.0
@@ -16,6 +17,7 @@ flask-cors==5.0.1
 flask-marshmallow==1.3.0
 Flask-Migrate==4.1.0
 Flask-SQLAlchemy==3.1.1
+fonttools==4.58.0
 greenlet==3.1.1
 gunicorn==23.0.0
 html5lib==1.1
@@ -34,9 +36,11 @@ pandas==2.2.3
 pillow==11.1.0
 psycopg2-binary==2.9.10
 pycparser==2.22
+pydyf==0.11.0
 pyHanko==0.25.3
 pyhanko-certvalidator==0.26.5
 pypdf==5.3.1
+pyphen==0.17.2
 python-bidi==0.6.6
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
@@ -49,11 +53,14 @@ six==1.17.0
 SQLAlchemy==2.0.38
 svglib==1.5.1
 tinycss2==1.4.0
+tinyhtml5==2.0.0
 typing_extensions==4.12.2
 tzdata==2025.1
 tzlocal==5.3.1
 uritools==4.0.3
 urllib3==2.3.0
+weasyprint==65.1
 webencodings==0.5.1
 Werkzeug==3.1.3
 xhtml2pdf==0.2.17
+zopfli==0.2.3.post1
