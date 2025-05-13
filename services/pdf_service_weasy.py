@@ -6,8 +6,21 @@ import os
 class PDF():
 
     @staticmethod
+    def fill_rows(items, total_rows=14):
+        while len(items) < total_rows:
+            items.append({
+                "cantidad": "",
+                "descripcion": "",
+                "precio": "",
+                "subtotal": ""
+            })
+
+        return items
+    
+    @staticmethod
     def generate_pdf_weasy(data):
-        print(data)
+        if len(data["productos"]) < 12:
+            data["productos"] = PDF.fill_rows(data["productos"], 12)
 
         try: 
             html_content = render_template('R_A4_OyD.html', **data)
@@ -30,3 +43,4 @@ class PDF():
         except Exception as e:
             print(f"❌ Error al generar el PDF: {e}")
             return {"error": "Error al generar el PDF"}, 500
+        
