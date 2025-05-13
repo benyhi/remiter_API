@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Remito N° </title>
+  <link rel="stylesheet" href="static/remito.css">
+</head>
+<body>
+  <div class="remito-container">
+<!-- ------------------------------------------------------------------------- -->
+    <div class="header">
+      <div class="header-left_container">
+        <div class="logo-container">
+          <img src="static/logotipo.png" alt="Logotipo">
+        </div>
+        <div class="local-info_container">
+          <div>
+            <h5>REPUESTOS Y ACCESORIOS PARA SEMBRADORAS MULTIMARCAS</h5>
+          </div>
+          <div class="h-divider"></div>
+          <div class="local-wtspp_container">
+            <img src="static/wtspp_icon.jpg" width="14pt" height="14pt" alt="WhatsApp">
+            <h3>3585138406</h3>
+          </div>
+          <div class="local-mail_container">
+            <p><strong>jorgealbertobruna@gmail.com - Ruta 8Km. 607,5</strong></p>
+          </div>
+        </div>
+      </div>
+      <div class="header-right_container">
+        <div class="doc-info_container">
+          <img src="static/cross_icon.png" class="cross" alt="Cross Icon">
+          <h2>Remito N° {{ numero }}</h2>
+          <p>Documento no válido como factura</p>
+          <h5><strong>Original</strong></h5>
+        </div>
+        <div class="doc-fecha_container">
+          <h5>Fecha de Emisión - {{ fecha }}</h5>
+        </div>
+      </div>
+    </div>
+<!-- ------------------------------------------------------------------------- -->
+    <div class="main-container">
+      <div class="cliente-info_container">
+        <div class="cliente-title_container">
+          <h4><strong>Datos del Cliente</strong></h4>
+        </div>
+        <div class="cliente-data_container">
+          <div class="data-group">
+            <p>Nombre:</p>
+            <p class="data-nombre">{{ cliente.nombre }}</p>
+          </div>
+          <div class="data-group">
+            <p>CUIT:</p>
+            <p class="data-cuit">{{ cliente.cuit }}</p>
+          </div>
+          <div class="data-group">
+            <p>Teléfono:</p>
+            <p class="data-tel">{{ cliente.telefono }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Cantidad</th>
+              <th>Descripción</th>
+              <th>Precio Unitario</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in productos %}
+            <tr>
+              <td>{{ item.cantidad }}</td>
+              <td>{{ item.descripcion }}</td>
+              <td>${{ item.precio }}</td>
+              <td>${{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td></td>
+              <td></td>
+              <td><strong>TOTAL</strong></td>
+              <td><strong>{{ total }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<!-------------------------------------------------------------------------------><!------------------------------------------------------------------------------->
+    <div class="remito-container">
+<!-- ------------------------------------------------------------------------- -->
+    <div class="header">
+      <div class="header-left_container">
+        <div class="logo-container">
+          <img src="static/logotipo.png" alt="Logotipo">
+        </div>
+        <div class="local-info_container">
+          <div>
+            <h5>REPUESTOS Y ACCESORIOS PARA SEMBRADORAS MULTIMARCAS</h5>
+          </div>
+          <div class="h-divider"></div>
+          <div class="local-wtspp_container">
+            <img src="static/wtspp_icon.jpg" width="14pt" height="14pt" alt="WhatsApp">
+            <h3>3585138406</h3>
+          </div>
+          <div class="local-mail_container">
+            <p><strong>jorgealbertobruna@gmail.com - Ruta 8Km. 607,5</strong></p>
+          </div>
+        </div>
+      </div>
+      <div class="header-right_container">
+        <div class="doc-info_container">
+          <img src="static/cross_icon.png" class="cross" alt="Cross Icon">
+          <h2>Remito N° {{ numero }}</h2>
+          <p>Documento no válido como factura</p>
+          <h5><strong>Original</strong></h5>
+        </div>
+        <div class="doc-fecha_container">
+          <h5>Fecha de Emisión - {{ fecha }}</h5>
+        </div>
+      </div>
+    </div>
+<!-- ------------------------------------------------------------------------- -->
+    <div class="main-container">
+      <div class="cliente-info_container">
+        <div class="cliente-title_container">
+          <h4><strong>Datos del Cliente</strong></h4>
+        </div>
+        <div class="cliente-data_container">
+          <div class="data-group">
+            <p>Nombre:</p>
+            <p class="data-nombre">{{ cliente.nombre }}</p>
+          </div>
+          <div class="data-group">
+            <p>CUIT:</p>
+            <p class="data-cuit">{{ cliente.cuit }}</p>
+          </div>
+          <div class="data-group">
+            <p>Teléfono:</p>
+            <p class="data-tel">{{ cliente.telefono }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Cantidad</th>
+              <th>Descripción</th>
+              <th>Precio Unitario</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in productos %}
+            <tr>
+              <td>{{ item.cantidad }}</td>
+              <td>{{ item.descripcion }}</td>
+              <td>${{ item.precio }}</td>
+              <td>${{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td></td>
+              <td></td>
+              <td><strong>TOTAL</strong></td>
+              <td><strong>{{ total }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

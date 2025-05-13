@@ -3,7 +3,8 @@ from models.models import Remito, Cliente
 from models.schemas import RemitoSchema
 from models.database import db
 from sqlalchemy.exc import SQLAlchemyError
-from services.pdf_service import PDF
+# from services.pdf_service import PDF
+from services.pdf_service_weasy import PDF
 from datetime import date, datetime
 
 
@@ -264,7 +265,6 @@ class RemitoController:
                     try:
                         fecha_obj = datetime.fromisoformat(fecha_str)
                         remito_dict["fecha"] = fecha_obj.strftime("%d/%m/%Y")
-                        print(f"📅 Fecha formateada: {remito_dict['fecha']}")
                     except Exception as e:
                         print(f"⚠️ Error al convertir la fecha: {e}")
 
@@ -279,7 +279,7 @@ class RemitoController:
 
                 remito_dict["total"] = float(remito_dict.get("total", 0))
 
-                pdf = PDF.generate(remito_dict)
+                pdf = PDF.generate_pdf_weasy(remito_dict)
                 response = make_response(pdf)
                 response.headers['Content-Type'] = 'application/pdf'
                 response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
