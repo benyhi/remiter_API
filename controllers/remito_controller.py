@@ -134,7 +134,7 @@ class RemitoController:
     def generate_pdf(data):
         if not data:
             return {"error": "No hay datos"}, 400
-        pdf = PDF.generate(data)
+        pdf = PDF.generate_pdf_weasy(data)
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'
         response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
