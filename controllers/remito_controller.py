@@ -132,13 +132,23 @@ class RemitoController:
 
     @staticmethod
     def generate_pdf(data):
-        if not data:
+        if data:
+            try: 
+                # LLama a la funcion para crear el PDF
+                pdf = PDF.generate_pdf_weasy(data)
+
+                # Crear la respuesta con el PDF generado
+                response = make_response(pdf)
+                response.headers['Content-Type'] = 'application/pdf'
+                response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
+
+                return response, 200
+
+            except Exception as e:
+                print(f"❌ Error al generar PDF: {e}")
+                return {"error": "Error inesperado"}, 400
+        else:
             return {"error": "No hay datos"}, 400
-        pdf = PDF.generate_pdf_weasy(data)
-        response = make_response(pdf)
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
-        return response, 200
 
     @staticmethod
     def print_pdf(remito_id):
