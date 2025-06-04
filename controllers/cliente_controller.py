@@ -1,5 +1,6 @@
 from models.models import Cliente
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
 from models.schemas import ClienteSchema
 from models.database import db
 
@@ -8,7 +9,7 @@ class ClienteController:
     @staticmethod
     def get_all():
         try:
-            clientes = Cliente.query.all()
+            clientes = Cliente.query.order_by(func.lower(Cliente.nombre)).all()
             cliente_schema = ClienteSchema(many=True)
             return cliente_schema.dump(clientes)
         except SQLAlchemyError as e:

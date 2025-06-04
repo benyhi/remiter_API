@@ -19,8 +19,9 @@ class PDF():
     
     @staticmethod
     def generate_pdf_weasy(data):
-        if len(data["productos"]) < 12:
-            data["productos"] = PDF.fill_rows(data["productos"], 12)
+        print(data)
+        if len(data["productos"]) < 13:
+            data["productos"] = PDF.fill_rows(data["productos"], 13)
 
         try: 
             html_content = render_template('R_A4_OyD.html', **data)
