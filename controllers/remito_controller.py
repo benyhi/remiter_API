@@ -69,8 +69,8 @@ class RemitoController:
             )
             db.session.add(remito)
             db.session.commit()
-    
-            return RemitoSchema().dump(remito)
+
+            return RemitoSchema().dump(remito), 201
 
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -177,4 +177,4 @@ class RemitoController:
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'
         response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
-        return response
+        return response, 200

@@ -96,21 +96,29 @@ p  { font-size: 9pt; margin: 0; }
     gap: 4pt;
 }
 
-.local-wtspp_container,
-.local-mail_container {
+.local-wtspp_container{
     display: flex;
     align-items: center;
-    margin: 0 0 8pt 0;
+    justify-content: center;
 }
 
 .local-wtspp_container img {
     width: 24pt;
 }
 
+.local-mail_container {
+    text-align: center;
+    margin: 0 0 5pt 0;
+}
+
 .doc-info_container {
     width: 40%;
     text-align: center;
 } 
+
+.doc-info_container p {
+    margin: 2pt 0;
+}
 
 .cross {
 width: 20pt;
