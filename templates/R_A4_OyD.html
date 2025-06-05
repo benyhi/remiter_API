@@ -5,7 +5,7 @@
   <title>Remito N° </title>
   <link rel="stylesheet" href="static/remito.css">
 </head>
-<body>
+<body class="page-break">
   <div class="remito-container">
 <!-- ------------------------------------------------------------------------- -->
     <div class="header">
@@ -23,7 +23,8 @@
             <h3>3585138406</h3>
           </div>
           <div class="local-mail_container">
-            <p><strong>jorgealbertobruna@gmail.com - Ruta 8Km. 607,5</strong></p>
+            <p><strong>jorgealbertobruna@gmail.com</strong></p>
+            <p><strong>Ruta 8Km. 607,5</strong></p>
           </div>
         </div>
       </div>
@@ -33,9 +34,12 @@
           <h2>Remito N° {{ numero }}</h2>
           <p>Documento no válido como factura</p>
           <h5><strong>Original</strong></h5>
+          {% if pagina_actual and total_paginas is defined %}
+          <p>Pagina {{ pagina_actual }} de {{ total_paginas }}</p>
+          {%endif%}
         </div>
         <div class="doc-fecha_container">
-          <h5>Fecha de Emisión - {{ fecha }}</h5>
+          <h5>Fecha de emisión - {{ fecha }}</h5>
         </div>
       </div>
     </div>
@@ -119,6 +123,9 @@
           <h2>Remito N° {{ numero }}</h2>
           <p>Documento no válido como factura</p>
           <h5><strong>Duplicado</strong></h5>
+          {% if pagina_actual and total_paginas is defined %}
+            <p>Pagina {{ pagina_actual }} de {{ total_paginas }}</p>
+          {%endif%}
         </div>
         <div class="doc-fecha_container">
           <h5>Fecha de Emisión - {{ fecha }}</h5>

@@ -70,10 +70,7 @@ class RemitoController:
             db.session.add(remito)
             db.session.commit()
 
-            return {
-                "message": "Remito creado con éxito",
-                "nuevo_remito": RemitoSchema().dump(remito)
-            }, 201
+            return RemitoSchema().dump(remito), 201
 
         except SQLAlchemyError as e:
             db.session.rollback()
