@@ -49,23 +49,12 @@ class ProveedorSchema(ma.SQLAlchemySchema):
         if value and '@' not in value:
             raise ValidationError('El email debe ser válido')
         
-class FacturaSchema(ma.SQLAlchemySchema):
+class ProveedorNomSchema(ma.SQLAlchemySchema):
     class Meta:
-        model = Factura
-    
-    id = ma.auto_field()
-    numero = ma.auto_field()
-    proveedor_id = ma.Integer(required=True, load_only=True)
-    proveedor = ma.Nested(ProveedorSchema, dump_only=True)
-    descripcion = ma.auto_field()
-    fecha = ma.auto_field()
-    monto = ma.auto_field()
-    estado = ma.auto_field()
+        model = Proveedor
 
-    @validates('monto')
-    def validate_monto(self, value):
-        if value <= 0:
-            raise ValidationError('El monto debe ser mayor a cero')
+    id = ma.auto_field()
+    nombre = ma.auto_field()
     
 class PagoSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -73,7 +62,6 @@ class PagoSchema(ma.SQLAlchemySchema):
     
     id = ma.auto_field()
     factura_id = ma.Integer(required=True, load_only=True)
-    factura = ma.Nested(FacturaSchema, dump_only=True)
     monto_pagado = ma.auto_field()
     metodo_pago = ma.auto_field()
     fecha = ma.auto_field()
@@ -83,5 +71,20 @@ class PagoSchema(ma.SQLAlchemySchema):
         if value <= 0:
             raise ValidationError('El monto pagado debe ser mayor a cero')
         
-
+class FacturaSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Factura
     
+    id = ma.auto_field()
+    numero = ma.auto_field()
+    proveedor = ma.Nested(ProveedorNomSchema, dump_only=True)
+    descripcion = ma.auto_field()
+    fecha = ma.auto_field()
+    monto = ma.auto_field()
+    estado = ma.auto_field()
+    pagos = ma.Nested(PagoSchema, many=True, dump_only=True)
+
+    @validates('monto')
+    def validate_monto(self, value):
+        if value <= 0:
+            raise ValidationError('El monto debe ser mayor a cero')

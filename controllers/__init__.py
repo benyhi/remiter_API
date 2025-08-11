@@ -1,2 +1,5 @@
 from .remito_controller import RemitoController
 from .cliente_controller import ClienteController
+from .proveedor_controller import ProveedorController
+from .factura_controller import FacturaController
+from .pago_controller import PagoController

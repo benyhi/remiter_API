@@ -20,7 +20,7 @@ class RemitoController:
     @staticmethod
     def get_one(remito_id):
         try:
-            remito = Remito.query.get(remito_id)
+            remito = db.session.get(Remito, remito_id)
             if not remito:
                 return {"error": f"Remito con id {remito_id} no encontrado"}, 404
             return RemitoSchema().dump(remito), 200
@@ -79,7 +79,7 @@ class RemitoController:
     @staticmethod
     def update(remito_id, data):
         try:
-            remito = Remito.query.get(remito_id)
+            remito = db.session.get(Remito, remito_id)
             if not remito:
                 return {"error": f"Remito con id {remito_id} no encontrado"}, 404
 
@@ -111,7 +111,7 @@ class RemitoController:
     @staticmethod
     def delete(remito_id):
         try:
-            remito = Remito.query.get(remito_id)
+            remito = db.session.get(Remito, remito_id)
             if not remito:
                 return {"error": f"Remito con id {remito_id} no encontrado"}, 404
 
