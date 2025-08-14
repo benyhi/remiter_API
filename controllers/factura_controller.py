@@ -24,6 +24,18 @@ class FacturaController:
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			raise Exception(f"No se pudo obtener la factura: {str(e)}")
+		
+	@staticmethod
+	def get_all_by_id(proveedor_id):
+		try:
+			facturas = db.session.query(Factura
+				).filter(Factura.proveedor_id == proveedor_id
+			 	).order_by(Factura.fecha.desc()).all()
+			if not facturas:
+				return None
+			return FacturaSchema(many=True).dump(facturas)
+		except SQLAlchemyError as e:
+			raise Exception(f"No se pudo obtener las facturas del proveedor id: {str(e)}")
 
 	@staticmethod
 	def create(data):

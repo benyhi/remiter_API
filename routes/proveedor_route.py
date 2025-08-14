@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from controllers.proveedor_controller import ProveedorController as Proveedor
+from controllers.factura_controller import FacturaController as Factura
 
 proveedor_bp = Blueprint('proveedor_bp', __name__)
 
@@ -27,6 +28,14 @@ def get_proveedor(id):
         if proveedor is None:
             return jsonify({"error": "Proveedor no encontrado"}), 404
         return jsonify(proveedor), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@proveedor_bp.route('/proveedores/<int:id>/facturas', methods=['GET'])
+def get_facturas_by_proveedor(id):
+    try:
+        facturas = Factura.get_all_by_id(id)
+        return jsonify(facturas), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
