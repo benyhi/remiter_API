@@ -1,11 +1,12 @@
 from .database import db
+from sqlalchemy import cast, Date
 
 class Remito(db.Model):
     __tablename__ = 'remito'
     id = db.Column(db.Integer, primary_key=True)
     numero = db.Column(db.Integer, unique=True, nullable=False)
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id', ondelete="CASCADE", name='fk_remito_cliente'), nullable=False)
-    fecha = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
+    fecha = db.Column(db.DateTime, nullable=False, server_default=cast(db.func.now(), Date))
     productos = db.Column(db.JSON, nullable=False)  # Almacenar productos como JSON
     total = db.Column(db.Float, nullable=False)
 
@@ -38,7 +39,7 @@ class Factura(db.Model):
     numero = db.Column(db.String(100), unique=True, nullable=False)
     proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedor.id', ondelete="CASCADE", name='fk_factura_proveedor'), nullable=False)
     descripcion = db.Column(db.String(200), nullable=True)
-    fecha = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
+    fecha = db.Column(db.Date, nullable=False, server_default=cast(db.func.now(), Date))
     monto = db.Column(db.Float, nullable=False)
     estado = db.Column(db.Enum('pendiente','pago_parcial','pagado','cancelado', name='estado_enum'), nullable=False, default='pendiente')
 
@@ -50,7 +51,7 @@ class Pago(db.Model):
     factura_id = db.Column(db.Integer, db.ForeignKey('factura.id', ondelete="CASCADE", name='fk_pago_factura'), nullable=False)
     monto_pagado = db.Column(db.Float, nullable=False)
     metodo_pago = db.Column(db.Enum('efectivo','transferencia','cheque','deposito', name='metodo_pago_enum'), nullable=False, default='cheque')
-    fecha = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
+    fecha = db.Column(db.Date, nullable=False, server_default=cast(db.func.now(), Date))
 
     factura = db.relationship('Factura', backref=db.backref('pagos', cascade="all, delete"))
 
