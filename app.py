@@ -2,6 +2,7 @@ from flask import Flask, render_template
 from flask_cors import CORS
 from flask_migrate import Migrate
 from models.database import db, ma
+from events import pagos_event
 from routes import register_blueprint
 from config import Config
 

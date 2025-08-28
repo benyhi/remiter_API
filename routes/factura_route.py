@@ -10,6 +10,14 @@ def get_facturas():
 		return jsonify(facturas), 200
 	except Exception as e:
 		return jsonify({"error": str(e)}), 500
+	
+@factura_bp.route('/facturas/detalle', methods=['GET'])
+def get_facturas_with_detail():
+	try:
+		facturas = Factura.get_all_with_detail()
+		return jsonify(facturas), 200
+	except Exception as e:
+		return jsonify({"error": str(e)}), 500
 
 @factura_bp.route('/facturas', methods=['POST'])
 def post_factura():

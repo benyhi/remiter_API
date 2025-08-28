@@ -41,9 +41,35 @@ class Factura(db.Model):
     descripcion = db.Column(db.String(200), nullable=True)
     fecha = db.Column(db.Date, nullable=False, server_default=cast(db.func.now(), Date))
     monto = db.Column(db.Float, nullable=False)
-    estado = db.Column(db.Enum('pendiente','pago_parcial','pagado','cancelado', name='estado_enum'), nullable=False, default='pendiente')
+    estado = db.Column(db.Enum('pendiente','pago_parcial','pagado','cancelado','excedido', name='estado_enum'), nullable=False, default='pendiente')
 
     proveedor = db.relationship('Proveedor', backref=db.backref('facturas', cascade="all, delete"))    
+
+    pagos = db.relationship(
+        'Pago', 
+        back_populates='factura', 
+        cascade="all, delete-orphan",
+        lazy="joined"
+    )
+
+    @property
+    def total_pagado(self):
+        return sum(p.monto_pagado for p in self.pagos)
+
+    @property
+    def saldo(self):
+        return self.monto - self.total_pagado
+
+    def actualizar_estado(self):
+        """Actualiza el estado de la factura según los pagos."""
+        if self.total_pagado == 0:
+            self.estado = 'pendiente'
+        elif self.total_pagado < self.monto:
+            self.estado = 'pago_parcial'
+        elif self.total_pagado == self.monto:
+            self.estado = 'pagado'
+        else:
+            self.estado = 'excedido'
 
 class Pago(db.Model):
     __tablename__ = 'pago'
@@ -53,5 +79,8 @@ class Pago(db.Model):
     metodo_pago = db.Column(db.Enum('efectivo','transferencia','cheque','deposito', name='metodo_pago_enum'), nullable=False, default='cheque')
     fecha = db.Column(db.Date, nullable=False, server_default=cast(db.func.now(), Date))
 
-    factura = db.relationship('Factura', backref=db.backref('pagos', cascade="all, delete"))
+    factura = db.relationship(
+        "Factura",
+        back_populates="pagos"
+    )
 

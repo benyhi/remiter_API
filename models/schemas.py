@@ -82,9 +82,28 @@ class FacturaSchema(ma.SQLAlchemySchema):
     fecha = ma.auto_field()
     monto = ma.auto_field()
     estado = ma.auto_field()
-    pagos = ma.Nested(PagoSchema, many=True, dump_only=True)
 
     @validates('monto')
     def validate_monto(self, value):
         if value <= 0:
             raise ValidationError('El monto debe ser mayor a cero')
+
+class FacturaDetalleSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Factura
+
+    id = ma.auto_field()
+    numero = ma.auto_field()
+    descripcion = ma.auto_field()
+    fecha = ma.auto_field()
+    monto = ma.auto_field()
+    estado = ma.auto_field() 
+    total_pagado = ma.Method("get_total_pagado")
+    saldo = ma.Method("get_saldo")
+    pagos = ma.Nested(PagoSchema, many=True)
+
+    def get_total_pagado(self, obj):
+        return obj.total_pagado
+
+    def get_saldo(self, obj):
+        return obj.saldo

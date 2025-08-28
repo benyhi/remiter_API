@@ -1,19 +1,35 @@
-from models.models import Factura, Proveedor
-from models.schemas import FacturaSchema
+from models.models import Factura, Proveedor, Pago
+from models.schemas import FacturaSchema, FacturaDetalleSchema
 from models.database import db
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload
 
 class FacturaController:
 
 	@staticmethod
 	def get_all():
 		try:
-			facturas = Factura.query.order_by(Factura.fecha.desc()).all()
+			facturas = db.session.query(Factura).all()
 			return FacturaSchema(many=True).dump(facturas)
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			raise Exception(f"No se pudieron obtener las facturas: {str(e)}")
 
+	@staticmethod
+	def get_all_with_detail():
+		try:
+			facturas = (
+				db.session.query(Factura)
+				.options(joinedload(Factura.pagos))  # eager load
+				.order_by(Factura.fecha.desc())
+				.all()
+			)
+			return FacturaDetalleSchema(many=True).dump(facturas)
+
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			raise Exception(f"No se pudieron obtener las facturas con detalle: {str(e)}")
+		
 	@staticmethod
 	def get_one(factura_id):
 		try:
@@ -36,6 +52,22 @@ class FacturaController:
 			return FacturaSchema(many=True).dump(facturas)
 		except SQLAlchemyError as e:
 			raise Exception(f"No se pudo obtener las facturas del proveedor id: {str(e)}")
+		
+	@staticmethod
+	def get_all_by_id_with_detail(proveedor_id):
+		try:
+			facturas = (
+				db.session.query(Factura)
+				.options(joinedload(Factura.pagos)) 
+				.filter(Factura.proveedor_id == proveedor_id)
+				.order_by(Factura.fecha.desc())
+				.all()
+			)
+			return FacturaDetalleSchema(many=True).dump(facturas)
+
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			raise Exception(f"No se pudieron obtener las facturas del proveedor: {str(e)}")
 
 	@staticmethod
 	def create(data):

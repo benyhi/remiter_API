@@ -38,6 +38,14 @@ def get_facturas_by_proveedor(id):
         return jsonify(facturas), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@proveedor_bp.route('/proveedores/<int:id>/facturas/detalle', methods=['GET'])
+def get_facturas_detalle_by_proveedor(id):
+    try:
+        facturas = Factura.get_all_by_id_with_detail(id)
+        return jsonify(facturas), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @proveedor_bp.route('/proveedores', methods=['PUT'])
 def put_proveedor():
