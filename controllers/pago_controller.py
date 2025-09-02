@@ -37,7 +37,7 @@ class PagoController:
                 raise Exception("Datos incompletos para crear el pago")
 
             factura = db.session.get(Factura, factura_id)
-            if not factura or factura.id == 0:
+            if not factura:
                 raise Exception("Factura no encontrada")
 
             pago = Pago(
@@ -48,15 +48,7 @@ class PagoController:
             )
             db.session.add(pago)
 
-            # Verificar el estado de la factura según el monto pagado
-            if monto_pagado == factura.monto:
-                factura.estado = "pagado"
-            elif monto_pagado == 0:
-                factura.estado = "pendiente"
-            else:
-                factura.estado = "pago_parcial"
-            db.session.add(factura)
-
+            # No establecemos estado manualmente: el listener lo recalculará
             db.session.commit()
             return PagoSchema().dump(pago)
         except SQLAlchemyError as e:
@@ -75,17 +67,7 @@ class PagoController:
                 if key in data:
                     setattr(pago, key, data[key])
 
-            factura = db.session.get(Factura, pago.factura_id)
-            if factura:
-                monto_pagado = pago.monto_pagado
-                if monto_pagado == factura.monto:
-                    factura.estado = "pagado"
-                elif monto_pagado == 0:
-                    factura.estado = "pendiente"
-                else:
-                    factura.estado = "pago_parcial"
-                db.session.add(factura)
-
+            # No setear estado manualmente; listener (after_flush_postexec) lo recalculará.
             db.session.commit()
             return PagoSchema().dump(pago)
         except SQLAlchemyError as e:
@@ -98,9 +80,12 @@ class PagoController:
             pago = db.session.get(Pago, pago_id)
             if not pago:
                 return None
+            payload = PagoSchema().dump(pago)
             db.session.delete(pago)
+            # listener detectará la eliminación y ajustará la factura asociada
             db.session.commit()
-            return PagoSchema().dump(pago)
+            return payload
+        
         except SQLAlchemyError as e:
             db.session.rollback()
             raise Exception(f"No se pudo eliminar el pago: {str(e)}")

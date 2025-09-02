@@ -1,5 +1,8 @@
 from .database import db
 from sqlalchemy import cast, Date
+from sqlalchemy import func
+from sqlalchemy.orm import object_session
+from decimal import Decimal
 
 class Remito(db.Model):
     __tablename__ = 'remito'
@@ -7,7 +10,7 @@ class Remito(db.Model):
     numero = db.Column(db.Integer, unique=True, nullable=False)
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id', ondelete="CASCADE", name='fk_remito_cliente'), nullable=False)
     fecha = db.Column(db.DateTime, nullable=False, server_default=cast(db.func.now(), Date))
-    productos = db.Column(db.JSON, nullable=False)  # Almacenar productos como JSON
+    productos = db.Column(db.JSON, nullable=False) 
     total = db.Column(db.Float, nullable=False)
 
     cliente = db.relationship('Cliente', backref=db.backref('remitos', cascade="all, delete"))
@@ -41,7 +44,7 @@ class Factura(db.Model):
     descripcion = db.Column(db.String(200), nullable=True)
     fecha = db.Column(db.Date, nullable=False, server_default=cast(db.func.now(), Date))
     monto = db.Column(db.Float, nullable=False)
-    estado = db.Column(db.Enum('pendiente','pago_parcial','pagado','cancelado','excedido', name='estado_enum'), nullable=False, default='pendiente')
+    estado = db.Column(db.Enum('pendiente','pago_parcial','pagado','cancelado', name='estado_enum'), nullable=False, default='pendiente')
 
     proveedor = db.relationship('Proveedor', backref=db.backref('facturas', cascade="all, delete"))    
 
@@ -60,16 +63,47 @@ class Factura(db.Model):
     def saldo(self):
         return self.monto - self.total_pagado
 
-    def actualizar_estado(self):
-        """Actualiza el estado de la factura según los pagos."""
-        if self.total_pagado == 0:
-            self.estado = 'pendiente'
-        elif self.total_pagado < self.monto:
-            self.estado = 'pago_parcial'
-        elif self.total_pagado == self.monto:
-            self.estado = 'pagado'
+   
+    def actualizar_estado(self, session=None):
+        """
+        Recalcula el total de pagos y fija el estado de la factura:
+          - total_pagado == 0                 -> 'pendiente'
+          - 0 < total_pagado < monto          -> 'pago_parcial'
+          - total_pagado == monto             -> 'pagado'
+        Usa sum() a nivel DB para mayor robustez.
+        """
+        from .models import Pago
+        sess = session or object_session(self) or db.session
+
+        if not self.id:
+            return
+
+        total_pagado = (
+            sess.query(func.coalesce(func.sum(Pago.monto_pagado), 0.0))
+            .filter(Pago.factura_id == self.id)
+            .scalar()
+        ) or 0.0
+
+        monto = self.monto or 0.0
+
+        total_dec = Decimal(str(total_pagado))
+        monto_dec = Decimal(str(monto))
+
+        if total_dec == Decimal('0'):
+            nuevo_estado = 'pendiente'
+        elif total_dec < monto_dec:
+            nuevo_estado = 'pago_parcial'
         else:
-            self.estado = 'excedido'
+            nuevo_estado = 'pagado'
+
+        # Solo escribir si cambió (reduce writes innecesarias)
+        if getattr(self, 'estado', None) != nuevo_estado:
+            self.estado = nuevo_estado
+            # marcar la factura para persistir (si se pasa session se añadirá en el event/controller)
+            try:
+                sess.add(self)
+            except Exception:
+                pass
 
 class Pago(db.Model):
     __tablename__ = 'pago'
