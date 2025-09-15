@@ -29,6 +29,7 @@ class PagoController:
     def create(data):
         try:
             factura_id = data.get("factura_id")
+            descripcion = data.get("descripcion")
             monto_pagado = data.get("monto_pagado")
             metodo_pago = data.get("metodo_pago", "cheque")
             fecha = data.get("fecha")
@@ -42,6 +43,7 @@ class PagoController:
 
             pago = Pago(
                 factura_id=factura_id,
+                descripcion=descripcion,
                 monto_pagado=monto_pagado,
                 metodo_pago=metodo_pago,
                 fecha=fecha
@@ -63,11 +65,11 @@ class PagoController:
             if not pago:
                 return None
 
-            for key in ["factura_id", "monto_pagado", "metodo_pago", "fecha"]:
+            for key in ["factura_id", "descripcion", "monto_pagado", "metodo_pago", "fecha"]:
                 if key in data:
                     setattr(pago, key, data[key])
 
-            # No setear estado manualmente; listener (after_flush_postexec) lo recalculará.
+            # No setear estado manualmente; listener (after_flush_postexec) lo recalcula.
             db.session.commit()
             return PagoSchema().dump(pago)
         except SQLAlchemyError as e:
@@ -82,7 +84,7 @@ class PagoController:
                 return None
             payload = PagoSchema().dump(pago)
             db.session.delete(pago)
-            # listener detectará la eliminación y ajustará la factura asociada
+            # listener detecta la eliminación y ajustará la factura asociada
             db.session.commit()
             return payload
         

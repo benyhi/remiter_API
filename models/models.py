@@ -109,6 +109,7 @@ class Pago(db.Model):
     __tablename__ = 'pago'
     id = db.Column(db.Integer, primary_key=True)
     factura_id = db.Column(db.Integer, db.ForeignKey('factura.id', ondelete="CASCADE", name='fk_pago_factura'), nullable=False)
+    descripcion = db.Column(db.String(200), nullable=True)
     monto_pagado = db.Column(db.Float, nullable=False)
     metodo_pago = db.Column(db.Enum('efectivo','transferencia','cheque','deposito', name='metodo_pago_enum'), nullable=False, default='cheque')
     fecha = db.Column(db.Date, nullable=False, server_default=cast(db.func.now(), Date))

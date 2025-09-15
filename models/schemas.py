@@ -62,6 +62,7 @@ class PagoSchema(ma.SQLAlchemySchema):
     
     id = ma.auto_field()
     factura_id = ma.Integer(required=True, load_only=True)
+    descripcion = ma.auto_field()
     monto_pagado = ma.auto_field()
     metodo_pago = ma.auto_field()
     fecha = ma.auto_field()
