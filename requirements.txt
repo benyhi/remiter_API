@@ -11,12 +11,11 @@ click==8.1.8
 colorama==0.4.6
 cryptography==44.0.2
 cssselect2==0.8.0
-dotenv==0.9.9
-Flask==3.1.0
+flask==3.1.0
 flask-cors==5.0.1
 flask-marshmallow==1.3.0
-Flask-Migrate==4.1.0
-Flask-SQLAlchemy==3.1.1
+flask-migrate==4.1.0
+flask-sqlalchemy==3.1.1
 fonttools==4.58.0
 greenlet==3.1.1
 gunicorn==23.0.0
@@ -29,6 +28,7 @@ Mako==1.3.9
 MarkupSafe==3.0.2
 marshmallow==3.26.1
 marshmallow-sqlalchemy==1.4.1
+mysql-connector-python==9.0.0
 numpy==2.2.3
 oscrypto==1.3.0
 packaging==24.2
