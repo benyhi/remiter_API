@@ -9,7 +9,7 @@ class Remito(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     numero = db.Column(db.Integer, unique=True, nullable=False)
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id', ondelete="CASCADE", name='fk_remito_cliente'), nullable=False)
-    fecha = db.Column(db.DateTime, nullable=False, server_default=cast(db.func.now(), Date))
+    fecha = db.Column(db.Date, nullable=False, server_default=cast(db.func.now(), Date))
     productos = db.Column(db.JSON, nullable=False) 
     total = db.Column(db.Float, nullable=False)
 
@@ -28,94 +28,72 @@ class Cliente(db.Model):
     telefono = db.Column(db.String(20), nullable=True)
 
 class Proveedor(db.Model):
-    __tablename__ = 'proveedor'
+    __tablename__ = "proveedor"
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
-    cuit = db.Column(db.String(20), nullable=False, unique=True)
-    telefono = db.Column(db.String(20), nullable=True)
-    email = db.Column(db.String(100), nullable=True)
-    direccion = db.Column(db.String(200), nullable=True)
+    cuit = db.Column(db.String(20), unique=True, nullable=False)
+    telefono = db.Column(db.String(50))
+    email = db.Column(db.String(100))
+    direccion = db.Column(db.String(150))
+
+    documentos = db.relationship("Documento", back_populates="proveedor")
+    cta_cte = db.relationship("CtaCte", back_populates="proveedor")
+
+
+class Documento(db.Model):
+    __tablename__ = "documentos"
+    id = db.Column(db.Integer, primary_key=True)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey("proveedor.id"), nullable=False)
+    tipo = db.Column(db.String(20))  # factura, pago, nc
+    fecha = db.Column(db.Date, server_default=cast(db.func.now(), Date))
+    monto = db.Column(db.Float, nullable=False)
+    descripcion = db.Column(db.String(255))
+
+    proveedor = db.relationship("Proveedor", back_populates="documentos")
+    factura = db.relationship("Factura", uselist=False, back_populates="documento")
+    pago = db.relationship("Pago", uselist=False, back_populates="documento")
+    nota_credito = db.relationship("NotaCredito", uselist=False, back_populates="documento")
+    cta_cte = db.relationship("CtaCte", back_populates="documento")
+
 
 class Factura(db.Model):
-    __tablename__ = 'factura'
+    __tablename__ = "factura"
     id = db.Column(db.Integer, primary_key=True)
-    numero = db.Column(db.String(100), unique=True, nullable=False)
-    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedor.id', ondelete="CASCADE", name='fk_factura_proveedor'), nullable=False)
-    descripcion = db.Column(db.String(200), nullable=True)
-    fecha = db.Column(db.Date, nullable=False, server_default=cast(db.func.now(), Date))
-    monto = db.Column(db.Float, nullable=False)
-    estado = db.Column(db.Enum('pendiente','pago_parcial','pagado','cancelado', name='estado_enum'), nullable=False, default='pendiente')
+    numero = db.Column(db.String(50), nullable=False)
+    documento_id = db.Column(db.Integer, db.ForeignKey("documentos.id"), unique=True)
 
-    proveedor = db.relationship('Proveedor', backref=db.backref('facturas', cascade="all, delete"))    
+    documento = db.relationship("Documento", back_populates="factura")
 
-    pagos = db.relationship(
-        'Pago', 
-        back_populates='factura', 
-        cascade="all, delete-orphan",
-        lazy="joined"
-    )
-
-    @property
-    def total_pagado(self):
-        return sum(p.monto_pagado for p in self.pagos)
-
-    @property
-    def saldo(self):
-        return self.monto - self.total_pagado
-
-   
-    def actualizar_estado(self, session=None):
-        """
-        Recalcula el total de pagos y fija el estado de la factura:
-          - total_pagado == 0                 -> 'pendiente'
-          - 0 < total_pagado < monto          -> 'pago_parcial'
-          - total_pagado == monto             -> 'pagado'
-        Usa sum() a nivel DB para mayor robustez.
-        """
-        from .models import Pago
-        sess = session or object_session(self) or db.session
-
-        if not self.id:
-            return
-
-        total_pagado = (
-            sess.query(func.coalesce(func.sum(Pago.monto_pagado), 0.0))
-            .filter(Pago.factura_id == self.id)
-            .scalar()
-        ) or 0.0
-
-        monto = self.monto or 0.0
-
-        total_dec = Decimal(str(total_pagado))
-        monto_dec = Decimal(str(monto))
-
-        if total_dec == Decimal('0'):
-            nuevo_estado = 'pendiente'
-        elif total_dec < monto_dec:
-            nuevo_estado = 'pago_parcial'
-        else:
-            nuevo_estado = 'pagado'
-
-        # Solo escribir si cambió (reduce writes innecesarias)
-        if getattr(self, 'estado', None) != nuevo_estado:
-            self.estado = nuevo_estado
-            # marcar la factura para persistir (si se pasa session se añadirá en el event/controller)
-            try:
-                sess.add(self)
-            except Exception:
-                pass
 
 class Pago(db.Model):
-    __tablename__ = 'pago'
+    __tablename__ = "pago"
     id = db.Column(db.Integer, primary_key=True)
-    factura_id = db.Column(db.Integer, db.ForeignKey('factura.id', ondelete="CASCADE", name='fk_pago_factura'), nullable=False)
-    descripcion = db.Column(db.String(200), nullable=True)
-    monto_pagado = db.Column(db.Float, nullable=False)
-    metodo_pago = db.Column(db.Enum('efectivo','transferencia','cheque','deposito', name='metodo_pago_enum'), nullable=False, default='cheque')
-    fecha = db.Column(db.Date, nullable=False, server_default=cast(db.func.now(), Date))
+    numero = db.Column(db.String(50), nullable=False)
+    documento_id = db.Column(db.Integer, db.ForeignKey("documentos.id"), unique=True)
+    metodo_pago = db.Column(db.String(50))
 
-    factura = db.relationship(
-        "Factura",
-        back_populates="pagos"
-    )
+    documento = db.relationship("Documento", back_populates="pago")
 
+
+class NotaCredito(db.Model):
+    __tablename__ = "nota_credito"
+    id = db.Column(db.Integer, primary_key=True)
+    numero = db.Column(db.String(50), nullable=False)
+    documento_id = db.Column(db.Integer, db.ForeignKey("documentos.id"), unique=True)
+
+    documento = db.relationship("Documento", back_populates="nota_credito")
+
+
+class CtaCte(db.Model):
+    __tablename__ = "cta_cte"
+    id = db.Column(db.Integer, primary_key=True)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey("proveedor.id"), nullable=False)
+    documento_id = db.Column(db.Integer, db.ForeignKey("documentos.id"))
+    fecha = db.Column(db.Date, server_default=cast(db.func.now(), Date))
+    descripcion = db.Column(db.String(255))
+    debe = db.Column(db.Float, default=0)
+    haber = db.Column(db.Float, default=0)
+    saldo = db.Column(db.Float, default=0)
+
+    proveedor = db.relationship("Proveedor", back_populates="cta_cte")
+    documento = db.relationship("Documento", back_populates="cta_cte")

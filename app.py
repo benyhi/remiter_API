@@ -22,6 +22,9 @@ def home():
 def invoice():
     return render_template('remito.html')
 
+with app.app_context():
+    create_all = db.create_all()
+
 from routes import register_blueprint
 register_blueprint(app)
 

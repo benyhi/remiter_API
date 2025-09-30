@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
+from controllers.documento_controller import DocumentosController
 from controllers.proveedor_controller import ProveedorController as Proveedor
-from controllers.factura_controller import FacturaController as Factura
 
 proveedor_bp = Blueprint('proveedor_bp', __name__)
 
@@ -31,19 +31,28 @@ def get_proveedor(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@proveedor_bp.route('/proveedores/<int:id>/facturas', methods=['GET'])
-def get_facturas_by_proveedor(id):
+# Obtener todos los documentos de un proveedor (anidados)
+@proveedor_bp.route('/<int:proveedor_id>/documentos', methods=['GET'])
+def get_documentos_by_proveedor(proveedor_id):
     try:
-        facturas = Factura.get_all_by_id(id)
-        return jsonify(facturas), 200
+        documentos = DocumentosController.get_all_by_proveedor(proveedor_id)
+        if not documentos:
+            return jsonify([]), 200
+        return jsonify(documentos), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
-@proveedor_bp.route('/proveedores/<int:id>/facturas/detalle', methods=['GET'])
-def get_facturas_detalle_by_proveedor(id):
+
+# Obtener todos los documentos de un proveedor con detalle (relaciones)
+@proveedor_bp.route('/<int:proveedor_id>/documentos/detalle', methods=['GET'])
+def get_documentos_detalle_by_proveedor(proveedor_id):
     try:
-        facturas = Factura.get_all_by_id_with_detail(id)
-        return jsonify(facturas), 200
+        # Este método carga relaciones: factura, pago, nota_credito, cta_cte
+        documentos = DocumentosController.get_all_with_detail()
+        # Filtramos por proveedor
+        documentos = [d for d in documentos if d['proveedor_id'] == proveedor_id]
+        if not documentos:
+            return jsonify([]), 200
+        return jsonify(documentos), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

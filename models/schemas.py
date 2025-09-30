@@ -1,6 +1,7 @@
 from .database import ma
 from marshmallow import validates, ValidationError
-from .models import Remito, Cliente, Proveedor, Factura, Pago
+from .models import Remito, Cliente, Proveedor, Factura, Pago, Documento, NotaCredito, CtaCte
+from datetime import date
 
 class ClienteSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -23,31 +24,19 @@ class RemitoSchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     numero = ma.auto_field()
     cliente_id = ma.Integer(required=True, load_only=True)
-    cliente = ma.Nested(ClienteSchema, dump_only=True)
     fecha = ma.auto_field()
     productos = ma.auto_field()
     total = ma.auto_field()
 
-class ProveedorSchema(ma.SQLAlchemySchema):
+    cliente = ma.Nested(ClienteSchema, dump_only=True)
+    
+class ProveedorSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Proveedor
-    
-    id = ma.auto_field()
-    nombre = ma.auto_field()
-    cuit = ma.auto_field()
-    telefono = ma.auto_field()
-    email = ma.auto_field()
-    direccion = ma.auto_field()
+        load_instance = True
 
-    @validates('cuit')
-    def validate_cuit(self, value):
-        if not value.isdigit() or len(value) != 11:
-            raise ValidationError('El CUIT debe contener solo números y tener 11 caracteres')
-        
-    @validates('email')
-    def validate_email(self, value):
-        if value and '@' not in value:
-            raise ValidationError('El email debe ser válido')
+    documentos = ma.Nested("DocumentoSchema", many=True)
+    cta_cte = ma.Nested("CtaCteSchema", many=True)
         
 class ProveedorNomSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -56,55 +45,47 @@ class ProveedorNomSchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     nombre = ma.auto_field()
     
-class PagoSchema(ma.SQLAlchemySchema):
+class DocumentoSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Documento
+        load_instance = True
+        include_fk = True
+
+    proveedor = ma.Nested(ProveedorSchema)
+    factura = ma.Nested("FacturaSchema")
+    pago = ma.Nested("PagoSchema")
+    nota_credito = ma.Nested("NotaCreditoSchema")
+    cta_cte = ma.Nested("CtaCteSchema", many=True)
+
+class FacturaSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Factura
+        load_instance = True
+        include_fk = True
+
+    documento = ma.Nested(DocumentoSchema)
+    
+class PagoSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Pago
-    
-    id = ma.auto_field()
-    factura_id = ma.Integer(required=True, load_only=True)
-    descripcion = ma.auto_field()
-    monto_pagado = ma.auto_field()
-    metodo_pago = ma.auto_field()
-    fecha = ma.auto_field()
+        load_instance = True
+        include_fk = True
 
-    @validates('monto_pagado')
-    def validate_monto_pagado(self, value):
-        if value <= 0:
-            raise ValidationError('El monto pagado debe ser mayor a cero')
-        
-class FacturaSchema(ma.SQLAlchemySchema):
+    documento = ma.Nested(DocumentoSchema)
+
+class NotaCreditoSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = Factura
-    
-    id = ma.auto_field()
-    numero = ma.auto_field()
-    proveedor = ma.Nested(ProveedorNomSchema, dump_only=True)
-    descripcion = ma.auto_field()
-    fecha = ma.auto_field()
-    monto = ma.auto_field()
-    estado = ma.auto_field()
+        model = NotaCredito
+        load_instance = True
+        include_fk = True
 
-    @validates('monto')
-    def validate_monto(self, value):
-        if value <= 0:
-            raise ValidationError('El monto debe ser mayor a cero')
+    documento = ma.Nested(DocumentoSchema)
 
-class FacturaDetalleSchema(ma.SQLAlchemySchema):
+class CtaCteSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = Factura
+        model = CtaCte
+        load_instance = True
+        include_fk = True
 
-    id = ma.auto_field()
-    numero = ma.auto_field()
-    descripcion = ma.auto_field()
-    fecha = ma.auto_field()
-    monto = ma.auto_field()
-    estado = ma.auto_field() 
-    total_pagado = ma.Method("get_total_pagado")
-    saldo = ma.Method("get_saldo")
-    pagos = ma.Nested(PagoSchema, many=True)
-
-    def get_total_pagado(self, obj):
-        return obj.total_pagado
-
-    def get_saldo(self, obj):
-        return obj.saldo
+    proveedor = ma.Nested(ProveedorSchema)
+    documento = ma.Nested(DocumentoSchema)
