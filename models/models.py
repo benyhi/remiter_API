@@ -1,16 +1,14 @@
 from .database import db
+from datetime import date
 from sqlalchemy import cast, Date
-from sqlalchemy import func
-from sqlalchemy.orm import object_session
-from decimal import Decimal
 
 class Remito(db.Model):
     __tablename__ = 'remito'
     id = db.Column(db.Integer, primary_key=True)
     numero = db.Column(db.Integer, unique=True, nullable=False)
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id', ondelete="CASCADE", name='fk_remito_cliente'), nullable=False)
-    fecha = db.Column(db.Date, nullable=False, server_default=cast(db.func.now(), Date))
-    productos = db.Column(db.JSON, nullable=False) 
+    fecha = db.Column(db.Date, nullable=False, default=date.today)
+    productos = db.Column(db.JSON, nullable=False)
     total = db.Column(db.Float, nullable=False)
 
     cliente = db.relationship('Cliente', backref=db.backref('remitos', cascade="all, delete"))
@@ -45,7 +43,7 @@ class Documento(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     proveedor_id = db.Column(db.Integer, db.ForeignKey("proveedor.id"), nullable=False)
     tipo = db.Column(db.String(20))  # factura, pago, nc
-    fecha = db.Column(db.Date, server_default=cast(db.func.now(), Date))
+    fecha = db.Column(db.Date, default=date.today, nullable=False)
     monto = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.String(255))
 

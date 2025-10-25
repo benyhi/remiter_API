@@ -20,7 +20,7 @@ def home():
 
 @app.route('/invoice')
 def invoice():
-    return render_template('remito.html')
+    return render_template('R_A4_OyD.html')
 
 with app.app_context():
     create_all = db.create_all()
